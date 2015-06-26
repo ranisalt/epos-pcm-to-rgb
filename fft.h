@@ -3,8 +3,33 @@
 * Visit www.nr.com for the licence.             *
 ************************************************/
 
+#ifndef FFT_H
+#define FFT_H
+
+#include "sine_table.h"
+#define deg_rad(deg) (deg * PI / 180.0)
 #define PI 3.141592653589793
-#define TWOPI (2.0*PI)
+#define TWOPI (2.0 * PI)
+
+double sin(double rad)
+{
+	double deg = deg_rad(rad);
+	int y0, y1, y2, y3;
+	int floored = (int)deg % 360 + 1;
+
+	y1 = sine_table[floored];
+	y0 = sine_table[floored - 1];
+	y2 = sine_table[floored + 1];
+	y3 = sine_table[floored + 1];
+
+	double mu = deg - y0;
+	int a0 = y3 - y2 - y1 + y0,
+		a1 = y0 - y1 - a0,
+		a2 = y2 - y0,
+		a3 = y1;
+
+	return a0 * mu * mu * mu +a1 * mu * mu + a2 * mu + a3;
+}
 
 /*
  FFT/IFFT routine. (see pages 507-508 of Numerical Recipes in C)
@@ -72,3 +97,5 @@ void four1(double data[], int nn, int isign)
 	mmax = istep;
     }
 }
+
+#endif /* FFT_H */
