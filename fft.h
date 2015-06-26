@@ -6,29 +6,51 @@
 #ifndef FFT_H
 #define FFT_H
 
-#include "sine_table.h"
-#define deg_rad(deg) (deg * PI / 180.0)
 #define PI 3.141592653589793
 #define TWOPI (2.0 * PI)
 
+namespace fft {
+
+template<unsigned int N>
+struct factorial {
+	enum { value = N * factorial<N - 1>::value };
+};
+
+template<>
+struct factorial<0> {
+	enum { value = 1 };
+};
+
+template<unsigned int N>
+struct power {
+	double operator()(double value)
+	{
+		return value * power<N - 1>()(value);
+	}
+};
+
+template<>
+struct power<0> {
+	double operator()(double value)
+	{
+		return 1.0;
+	}
+};
+
 double sin(double rad)
 {
-	double deg = deg_rad(rad);
-	int y0, y1, y2, y3;
-	int floored = (int)deg % 360 + 1;
 
-	y1 = sine_table[floored];
-	y0 = sine_table[floored - 1];
-	y2 = sine_table[floored + 1];
-	y3 = sine_table[floored + 1];
-
-	double mu = deg - y0;
-	int a0 = y3 - y2 - y1 + y0,
-		a1 = y0 - y1 - a0,
-		a2 = y2 - y0,
-		a3 = y1;
-
-	return a0 * mu * mu * mu +a1 * mu * mu + a2 * mu + a3;
+	double ret = rad;
+	ret -= power<3>()(rad) / factorial<3>::value;
+	ret += power<5>()(rad) / factorial<5>::value;
+	ret -= power<7>()(rad) / factorial<7>::value;
+	ret += power<9>()(rad) / factorial<9>::value;
+	ret -= power<11>()(rad) / factorial<11>::value;
+	ret += power<13>()(rad) / factorial<13>::value;
+	ret -= power<15>()(rad) / factorial<15>::value;
+	ret += power<17>()(rad) / factorial<17>::value;
+	ret -= power<19>()(rad) / factorial<19>::value;
+	return ret;
 }
 
 /*
@@ -96,6 +118,8 @@ void four1(double data[], int nn, int isign)
 	}
 	mmax = istep;
     }
+}
+
 }
 
 #endif /* FFT_H */
