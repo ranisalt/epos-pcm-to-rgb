@@ -27,10 +27,10 @@ public:
 		PIN_BLUE = 11
 	};
 
-	RGBLEDController() : _pins(new GPIO_Pin[COLOR_LAST]) {
-		_pins[COLOR_RED] = GPIO_Pin(PIN_RED);
-		_pins[COLOR_GREEN] = GPIO_Pin(PIN_GREEN);
-		_pins[COLOR_BLUE] = GPIO_Pin(PIN_BLUE);
+	RGBLEDController() : _pins() {
+		_pins[COLOR_RED] = new GPIO_Pin(PIN_RED);
+		_pins[COLOR_GREEN] = new GPIO_Pin(PIN_GREEN);
+		_pins[COLOR_BLUE] = new GPIO_Pin(PIN_BLUE);
 
 		writeColor(0xFF000000);
 	}
@@ -40,14 +40,14 @@ public:
 		bi.i = color;
 
 		for (int i = 0; i < COLOR_LAST; ++i) {
-			_pins[i].put(bi.b[i] > 0);
+			_pins[i]->put(bi.b[i] > 0);
 		}
 
 		this->currentColor = color & 0xFFFFFF00;
 	}
 
 private:
-	GPIO_Pin* _pins;
+	GPIO_Pin* _pins[COLOR_LAST];
 };
 
 #endif /* RGB_LED_CONTROLLER_H */
