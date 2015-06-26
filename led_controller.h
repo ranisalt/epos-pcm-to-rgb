@@ -3,7 +3,6 @@
 
 class LEDController {
 public:
-	virtual int readColor() const = 0;
 	virtual void writeColor(int) = 0;
 
 protected:

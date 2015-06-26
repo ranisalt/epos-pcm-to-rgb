@@ -35,10 +35,6 @@ public:
 		writeColor(0xFF000000);
 	}
 
-	int readColor() const {
-		return this->currentColor;
-	}
-
 	void writeColor(int color) {
 		byte_int bi;
 		bi.i = color;
