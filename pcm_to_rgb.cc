@@ -1,37 +1,45 @@
 #include <periodic_thread.h>
 #include <uart.h>
-#include "pcm_fft.h"
+#include "fft.h"
 #include "rgb_led_controller.h"
 
-const int points = 4096;
+const int points = 2048;
+static RGBLEDController led_ctrl = RGBLEDController();
+static UART* uart = new UART();
 
-union byte_int {
-	char b[4];
-	int i;
-};
-
-int readInt(UART& uart)
+short readInt16LE(UART* uart)
 {
-	byte_int bi;
-	for (int i = 0; i < 4; ++i) {
-		bi.b[i] = uart.get();
+	short a = uart->get(), b = uart->get();
+	return b << 8 | a;
+}
+
+int fft()
+{
+	while (true) {
+		double data[points * 2 + 1];
+		for (int i = 0; i < points * 2;) {
+			data[++i] = static_cast<double>(readInt16LE(uart));
+			data[++i] = 0;
+		}
+
+		four1(data, points, 1);
+
+		int color;
+		// map complex to color
+		led_ctrl.writeColor(color);
+
+		Periodic_Thread::wait_next();
 	}
-	return bi.i;
+
+	return 0;
 }
 
 int main()
 {
 	UART uart;
-
-	int header[11];
-	for (int i = 0; i < 11; ++i) {
-		header[i] = readInt(uart);
-	}
-
-	PCM_FFT fft(points, header);
 	RGBLEDController led_ctrl;
 
-	Periodic_Thread pt(PCM_FFT::run, fft, uart, led_ctrl, fft.period(), fft.times());
+	Periodic_Thread pt(fft, 44100 / points);
 	pt.join();
 
 	return 0;
