@@ -39,7 +39,7 @@ int main()
 	UART uart;
 	RGBLEDController led_ctrl;
 
-	Periodic_Thread pt(fft, 44100 / points);
+	Periodic_Thread pt(apply_fft, 44100 / points);
 	pt.join();
 
 	return 0;
