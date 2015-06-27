@@ -13,7 +13,7 @@ short readInt16LE(UART* uart)
 	return b << 8 | a;
 }
 
-int fft()
+int apply_fft()
 {
 	while (true) {
 		double data[points * 2 + 1];
@@ -22,7 +22,7 @@ int fft()
 			data[++i] = 0;
 		}
 
-		four1(data, points, 1);
+		fft::four1(data, points, 1);
 
 		int color;
 		// map complex to color
