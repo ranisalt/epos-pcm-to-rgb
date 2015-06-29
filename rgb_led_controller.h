@@ -46,9 +46,9 @@ public:
 	}
 
 	void writeColor(RGB color) {
-		_pins[COLOR_RED]->put((color.red > 0xF0) ? 1 : 0);
-		_pins[COLOR_GREEN]->put((color.green > 0xF0) ? 1 : 0);
-		_pins[COLOR_BLUE]->put((color.blue > 0xF0) ? 1 : 0);
+		_pins[COLOR_RED]->put((color.red > 0xC0) ? 1 : 0);
+		_pins[COLOR_GREEN]->put((color.green > 0xC0) ? 1 : 0);
+		_pins[COLOR_BLUE]->put((color.blue > 0xC0) ? 1 : 0);
 
 		this->currentColor = color;
 	}
