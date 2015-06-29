@@ -1,46 +1,30 @@
-#include <periodic_thread.h>
 #include <uart.h>
-#include "fft.h"
-#include "rgb_led_controller.h"
+#include <utility/ostream.h>
 
-const int points = 2048;
-static RGBLEDController led_ctrl = RGBLEDController();
-static UART* uart = new UART();
+__USING_SYS
 
-short readInt16LE(UART* uart)
-{
-	short a = uart->get(), b = uart->get();
-	return b << 8 | a;
-}
-
-int apply_fft()
-{
-	while (true) {
-		double data[points * 2 + 1];
-		for (int i = 0; i < points * 2;) {
-			data[++i] = static_cast<double>(readInt16LE(uart));
-			data[++i] = 0;
-		}
-
-		fft::four1(data, points, 1);
-
-		int color;
-		// map complex to color
-		led_ctrl.writeColor(color);
-
-		Periodic_Thread::wait_next();
+class WAV {
+public:
+	WAV(OStream& cout) : uart()
+	{
+		char riff[5];
+		riff[0] = uart.get();
+		riff[1] = uart.get();
+		riff[2] = uart.get();
+		riff[3] = uart.get();
+		riff[4] = 0;
+		while (true)
+			cout << riff;
 	}
 
-	return 0;
-}
+private:
+	UART uart;
+};
 
 int main()
 {
-	UART uart;
-	RGBLEDController led_ctrl;
-
-	Periodic_Thread pt(apply_fft, 44100 / points);
-	pt.join();
+	OStream cout;
+	WAV wav(cout);
 
 	return 0;
 }

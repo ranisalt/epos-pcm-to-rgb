@@ -3,15 +3,12 @@
 
 #include <gpio_pin.h>
 #include "led_controller.h"
+#include "pcm_thread.h"
+#include "tools.h"
 
 __USING_SYS
 
 class RGBLEDController : public LEDController {
-	union byte_int {
-		int i;
-		char b[4];
-	};
-
 public:
 	enum COLORS {
 		COLOR_RED,
@@ -24,7 +21,7 @@ public:
 	enum PINS {
 		PIN_RED = 10,
 		PIN_GREEN = 9,
-		PIN_BLUE = 11
+		PIN_BLUE = 11,
 	};
 
 	RGBLEDController() : _pins() {
@@ -32,22 +29,41 @@ public:
 		_pins[COLOR_GREEN] = new GPIO_Pin(PIN_GREEN);
 		_pins[COLOR_BLUE] = new GPIO_Pin(PIN_BLUE);
 
-		writeColor(0xFF000000);
+		_threads[COLOR_RED] = new Thread(&pcm_thread, _pins[COLOR_RED], &(currentColor.red));
+		_threads[COLOR_RED] = new Thread(&pcm_thread, _pins[COLOR_GREEN], &(currentColor.green));
+		_threads[COLOR_RED] = new Thread(&pcm_thread, _pins[COLOR_BLUE], &(currentColor.blue));
+		setColor(RGB(0xFF, 0xFF, 0xFF));
 	}
 
-	void writeColor(int color) {
-		byte_int bi;
-		bi.i = color;
-
-		for (int i = 0; i < COLOR_LAST; ++i) {
-			_pins[i]->put(bi.b[i] > 0);
+	~RGBLEDController() {
+		for (char i = 0; i < COLOR_LAST; ++i) {
+			_threads[i].join();
+			delete _threads[i];
+			delete _pins[i];
 		}
+		/*delete[] _threads;
+		delete[] _pins;*/
+	}
 
-		this->currentColor = color & 0xFFFFFF00;
+	void writeColor(RGB color) {
+		_pins[COLOR_RED]->put((color.red == 0xFF) ? 1 : 0);
+		_pins[COLOR_GREEN]->put((color.green == 0xFF) ? 1 : 0);
+		_pins[COLOR_BLUE]->put((color.blue == 0xFF) ? 1 : 0);
+
+		this->currentColor = color;
+	}
+
+	void setColor(const RGB& color) {
+		this->currentColor = color;
+	}
+
+	RGB color() const {
+		return this->currentColor;
 	}
 
 private:
 	GPIO_Pin* _pins[COLOR_LAST];
+	Thread* _threads[COLOR_LAST];
 };
 
 #endif /* RGB_LED_CONTROLLER_H */
