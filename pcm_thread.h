@@ -8,10 +8,13 @@
 
 __USING_SYS
 
-int pcm_thread(RGBLEDController::PinId pinid) {
-	GPIO_Pin pin(pinid);
+int pcm_thread() {
+	GPIO_Pin pin(23);
 	while (true) {
 		pin.put(1);
+                Alarm::delay(1000000);
+	        pin.put(0);
+                Alarm::delay(1000000);
 	}
 	/*while (true) {
 		pin->put(1);
