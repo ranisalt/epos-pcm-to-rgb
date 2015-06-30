@@ -10,11 +10,13 @@ const NIC::Address src(0x01);
 const unsigned char PROTOCOL_ID = 56;
 
 int sender_thread(RGB* color) {
-	while (true) {
+	/*while (true) {
 		(*color) = getColor();
-                Thread::yield();
     		//led_ctrl.setColor(color);
                 //nic.send(src, PROTOCOL_ID, &color, sizeof(color));
+        }*/
+        for (unsigned char i = 0;; ++i) {
+            (*color) = getColor();
         }
 }
 
@@ -25,17 +27,17 @@ int sender() {
 
         //unsigned char a = 20, b = 100, c = 255;
 	GPIO_Pin* red_led = new GPIO_Pin(10);
-	GPIO_Pin* green_led = new GPIO_Pin(9);
-	GPIO_Pin* blue_led = new GPIO_Pin(11);
+	//GPIO_Pin* green_led = new GPIO_Pin(9);
+	//GPIO_Pin* blue_led = new GPIO_Pin(11);
 	//red_led.put(0);
 
-        Thread* t = new Thread(&pcm_thread, red_led, &color.red);
-        Thread* u = new Thread(&pcm_thread, green_led, &color.green);
-        Thread* v = new Thread(&pcm_thread, blue_led, &color.blue);
+        Thread* t = new Thread(&pcm_thread, red_led, &color);
+        //Thread* u = new Thread(&pcm_thread, green_led, &color.green);
+        //Thread* v = new Thread(&pcm_thread, blue_led, &color.blue);
         //t->join();
         //u->join();
         //v->join();*/
-        //Thread* w = new Thread(&sender_thread, &color);
+        Thread* w = new Thread(&sender_thread, &color);
 	/*while (true) {
 		//color = getColor();
     		//led_ctrl.setColor(color);
