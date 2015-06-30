@@ -2,8 +2,9 @@
 #define RGB_LED_CONTROLLER_H
 
 #include <gpio_pin.h>
+#include <thread.h>
 #include "led_controller.h"
-//#include "pcm_thread.h"
+#include "pcm_thread.h"
 #include "tools.h"
 
 __USING_SYS
@@ -29,10 +30,11 @@ public:
 		_pins[COLOR_GREEN] = new GPIO_Pin(PIN_GREEN);
 		_pins[COLOR_BLUE] = new GPIO_Pin(PIN_BLUE);
 
-		/*_threads[COLOR_RED] = new Thread(&pcm_thread, PIN_RED);
-		_threads[COLOR_GREEN] = new Thread(&pcm_thread, PIN_GREEN);
-		_threads[COLOR_BLUE] = new Thread(&pcm_thread, PIN_BLUE);*/
-		setColor(RGB(0xFF, 0xFF, 0xFF));
+                unsigned char a = 0x10, b = 0x40, c = 0xFF;
+		_threads[COLOR_RED] = new Thread(&pcm_thread, _pins[COLOR_RED], &a);
+		_threads[COLOR_GREEN] = new Thread(&pcm_thread, _pins[COLOR_GREEN], &b);
+		_threads[COLOR_BLUE] = new Thread(&pcm_thread, _pins[COLOR_BLUE], &c);
+		//setColor(RGB(0x10, 0x40, 0xFF));
 	}
 
 	~RGBLEDController() {

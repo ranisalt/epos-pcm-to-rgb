@@ -14,7 +14,6 @@ struct RGB {
 };
 
 RGB getColor() {
-	OStream cout;
 	UART uart;
 	RGB ret(
 		uart.get(),
